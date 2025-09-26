@@ -11,7 +11,7 @@ class Habit:
 
     """
 
-    def __init__(self, name: str, periodicity: str, description: str):
+    def __init__(self, name: str, periodicity: str, description: str = None):
         self.name = name
         self.periodicity = periodicity
         self.description = description
@@ -26,13 +26,27 @@ class Habit:
             raise ValueError ("Invalid periodicity")
         self._periodicity = periodicity
 
+    @property
+    def name(self):
+        return self._name
+    
+    @name.setter
+    def name(self, name):
+        if name is not None:
+            name = name.strip()
+        if not name:
+            raise ValueError ("Habit name cannot be empty")
+        elif  1 == len(name) or len(name) > 20:
+            if 1 == len(name):
+                raise ValueError ("Habit name is too short")
+            else:
+                raise ValueError ("Habit name is too long")
+        elif name.isdigit():
+            raise ValueError ("Habit name cannot be a digit")
+        elif name in ["daily", "weekly", "monthly"]:
+            raise ValueError ("Wrong habit name")
+        else:
+            self._name = name
+
     def __str__(self):
         return f'{self.name} ({self.periodicity}: {self.description})'
-
-    
-
-habit = Habit("laufen", "weekly", "2 Mal laufen wöchentlich")
-habit.increment()
-print(habit)
-habit.reset()
-print(habit)
