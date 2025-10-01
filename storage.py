@@ -33,6 +33,62 @@ class SQLiteStorage:
             return "Habit succesfully deleted"
         elif del_status == None:
             return "There is no such habit"
-            
+    
+    def save_tracking_data(self, data):
+        habit_name, single_date = data[0], str(data[1])
+        if not habit_name or not habit_name.strip():
+            return "Invalid habit name"
         
+        res = self.cursor.execute("""
+            SELECT habit_id FROM habits
+            WHERE habit_name = ?
+            """, (habit_name,))
+        habit_id = res.fetchone()
+        if not habit_id:
+            return "Habit name was not found"
+        habit_id = habit_id["habit_id"]
+                                          
+        self.cursor.execute("""
+            INSERT INTO tracking (habit_id, completion_date) 
+            VALUES (?, ?)
+            """, (habit_id, single_date))
+        return "Successfully saved"
+    
+    def load_tracking_data(self, habit_name):
+        if not habit_name or not habit_name.strip():
+            return "Invalid habit name"
+        res = self.cursor.execute("""
+            SELECT habit_id FROM habits
+            WHERE habit_name = ?
+            """, (habit_name,))
+        habit_id = res.fetchone()
+        habit_id = habit_id["habit_id"]
         
+        res = self.cursor.execute("""
+                            SELECT completion_date FROM tracking WHERE habit_id = ?
+                            """, (habit_id,))
+        load_result = res.fetchall()
+        return load_result
+    
+    def delete_tracking_data(self,data):
+        habit_name, completion_date = data[0], str(data[1])
+        if not habit_name or not habit_name.strip():
+            return "Invalid habit name"
+        res = self.cursor.execute("""
+            SELECT habit_id FROM habits
+            WHERE habit_name = ?
+            """, (habit_name,))
+        habit_id = res.fetchone()
+        if not habit_id:
+            return "Habit was not found"
+        habit_id = habit_id["habit_id"]
+
+        self.cursor.execute("""
+                            DELETE FROM tracking WHERE habit_id = ?
+                            AND completion_date = ?
+                            """, (habit_id, completion_date,))
+        rows = self.cursor.rowcount
+        if rows > 0:
+            return "Data succesfully deleted"
+        else:
+            return "No data found"

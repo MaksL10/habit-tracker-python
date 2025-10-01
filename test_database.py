@@ -74,7 +74,7 @@ def db_setup():
             habit_id INTEGER,
             completion_date DATE,
 
-            FOREIGN KEY (habit_id) REFERENCES habits(habit_id))
+            FOREIGN KEY (habit_id) REFERENCES habits(habit_id) ON DELETE CASCADE)
     """)
 
     # Database is ready and waiting for usage
