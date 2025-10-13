@@ -14,14 +14,27 @@ def daily_habit():
 def weekly_habit():
     return Habit("go to Cinema", "weekly", "Watch a movie weekly")
 
+@pytest.fixture
+def single_entry_habit():
+    return Habit("meditation", "weekly", "Meditate every day")
+
+@pytest.fixture
+def no_consecutive_dates_habit():
+    return Habit("gym", "daily", "Want to go to gym everyday")
+
+@pytest.fixture
+def no_tracking_data_habit():
+    return Habit("reading", "daily", "Want to read 10 Pages every day")
+
 def test_multiple_habits(db_setup, valid_habit, daily_habit, weekly_habit):
     storage = SQLiteStorage(db_setup)
     storage.save_habit(valid_habit)
     storage.save_habit(daily_habit)
     storage.save_habit(weekly_habit)
+    
 
 
-@freeze_time("2025-09-26")
+@freeze_time("2025-09-29")
 def test_today():
     assert datetime.now().date() == date(2025,9,26)
 
@@ -29,6 +42,7 @@ def test_today():
 def tracking_test_data():
     return {
         "10000 steps": [
+            date(2025,9,27),
             date(2025,9,26),
             date(2025,9,25),
             date(2025,9,23),
@@ -42,14 +56,29 @@ def tracking_test_data():
             date(2025,9,25),
             date(2025,9,16),
             date(2025,9,2)
+        ],
+
+        "meditation": [
+            date(2025,9,26)
+        ],
+
+        "gym": [
+            date(2025,9,26),
+            date(2025,9,20),
+            date(2025,9,18),
+            date(2025,9,10)
         ]
     }
 
 @pytest.fixture
-def setup_analytics_data(db_setup,daily_habit, weekly_habit, tracking_test_data):
+def setup_analytics_data(db_setup, daily_habit, weekly_habit, single_entry_habit, no_tracking_data_habit, no_consecutive_dates_habit,
+                         tracking_test_data):
     storage = SQLiteStorage(db_setup)
     storage.save_habit(weekly_habit)
     storage.save_habit(daily_habit)
+    storage.save_habit(single_entry_habit)
+    storage.save_habit(no_consecutive_dates_habit)
+    storage.save_habit(no_tracking_data_habit)
     for habit_name, dates_list in tracking_test_data.items():
         for single_data in dates_list:
             result = (habit_name, single_data)

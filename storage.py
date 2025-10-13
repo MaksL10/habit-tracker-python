@@ -62,6 +62,8 @@ class SQLiteStorage:
             WHERE habit_name = ?
             """, (habit_name,))
         habit_id = res.fetchone()
+        if not habit_id:
+            return "Habit name was not found"
         habit_id = habit_id["habit_id"]
         
         res = self.cursor.execute("""

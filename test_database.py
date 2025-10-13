@@ -100,10 +100,6 @@ def valid_habit():
 def invalid_habit(request):
     return request.param
 
-@pytest.fixture
-def test_tracking():
-    pass
-
 # endregion
 
 # region Fixture tests
@@ -137,7 +133,6 @@ def test_save(db_setup, valid_habit):
     
     result2 = storage.save_habit(valid_habit)
     assert result2 == "Habit already exists"
-# endregion
 
 def test_load(db_setup, valid_habit):
     storage = SQLiteStorage(db_setup)
@@ -154,3 +149,5 @@ def test_delete(db_setup, valid_habit):
     assert del_result == "There is no such habit"
     del_result2 = storage.delete_habit("running")
     assert del_result2 == "Habit succesfully deleted"
+
+# endregion
