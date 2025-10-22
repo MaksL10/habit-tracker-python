@@ -12,10 +12,12 @@ class SQLiteStorage:
                     INSERT INTO habits (habit_name, habit_periodicity, habit_description) VALUES
                     (?, ?, ?)
                 """, (habit.name, habit.periodicity, habit.description))
-            return "Successfully saved"
+            self.connection.commit()
+            return True
         except sqlite3.IntegrityError:
-            return "Habit already exists"
+            return False
 
+    
     def load_habit(self, habit):
         res = self.cursor.execute("""
                             SELECT * FROM habits WHERE habit_name = ?
@@ -23,21 +25,25 @@ class SQLiteStorage:
         answer = res.fetchone()
         return answer
     
+    def load_all_habits(self):
+        res = self.cursor.execute("SELECT habit_name FROM habits")
+        answer = res.fetchall()
+        return [habit["habit_name"] for habit in answer]
+    
     def delete_habit(self, habit):
         res = self.cursor.execute("""
                                  DELETE FROM habits WHERE habit_name = ? 
                                   """, (habit,))
-        del_status = res.fetchone()
-        rows = self.cursor.rowcount
-        if rows > 0:
-            return "Habit succesfully deleted"
-        elif del_status == None:
-            return "There is no such habit"
+        self.connection.commit()
+        if self.cursor.rowcount > 0:
+            return (True, "Habit succesfully deleted")
+        else:
+            return (False, "There is no such habit")
     
     def save_tracking_data(self, data):
         habit_name, single_date = data[0], str(data[1])
         if not habit_name or not habit_name.strip():
-            return "Invalid habit name"
+            return (False, "Invalid habit name")
         
         res = self.cursor.execute("""
             SELECT habit_id FROM habits
@@ -45,14 +51,15 @@ class SQLiteStorage:
             """, (habit_name,))
         habit_id = res.fetchone()
         if not habit_id:
-            return "Habit name was not found"
+            return (False, "Habit name was not found")
         habit_id = habit_id["habit_id"]
                                           
         self.cursor.execute("""
             INSERT INTO tracking (habit_id, completion_date) 
             VALUES (?, ?)
             """, (habit_id, single_date))
-        return "Successfully saved"
+        self.connection.commit()
+        return (True, "Successfully saved")
     
     def load_tracking_data(self, habit_name):
         if not habit_name or not habit_name.strip():

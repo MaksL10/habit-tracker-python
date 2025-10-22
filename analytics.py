@@ -50,7 +50,7 @@ def longest_streak(storage, habit):
 def check_gap(gap_value, periodicity, is_gap_to_today=False):
     if periodicity == "daily":
         if is_gap_to_today:
-            return 1 == gap_value
+            return gap_value <= 1
         else:
             gap_rules = (1, 1)
     elif periodicity == "weekly":

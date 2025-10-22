@@ -36,7 +36,7 @@ def test_multiple_habits(db_setup, valid_habit, daily_habit, weekly_habit):
 
 @freeze_time("2025-09-29")
 def test_today():
-    assert datetime.now().date() == date(2025,9,26)
+    assert datetime.now().date() == date(2025,9,29)
 
 @pytest.fixture
 def tracking_test_data():
@@ -90,31 +90,36 @@ def setup_analytics_data(db_setup, daily_habit, weekly_habit, single_entry_habit
 def test_save_analytics(setup_analytics_data):
     result = ("10000 steps", "2025-8-31")
     data_set = setup_analytics_data.save_tracking_data(result)
-    assert data_set == "Successfully saved"
+    success, message = data_set
+    assert message == "Successfully saved"
 
     result2 = (None, "2025-9-24")
     data_set2 = setup_analytics_data.save_tracking_data(result2)
-    assert data_set2 == "Invalid habit name"
+    success, message = data_set2
+    assert message == "Invalid habit name"
 
     result3 = ("sleeping", "2025-9-29")
     data_set3 = setup_analytics_data.save_tracking_data(result3)
-    assert data_set3 == "Habit name was not found"
+    success, message = data_set3
+    assert message == "Habit name was not found"
 
     result4 = (" ", "2025-9-25")
     data_set4 = setup_analytics_data.save_tracking_data(result4)
-    assert data_set4 == "Invalid habit name"
+    success, message = data_set4
+    assert message == "Invalid habit name"
 
     result5 = ("go to Cinema", "2025-9-20")
     data_set5 = setup_analytics_data.save_tracking_data(result5)
-    assert data_set5 == "Successfully saved"
+    success, message = data_set5
+    assert message == "Successfully saved"
 
 
 def test_load_analytics(setup_analytics_data):
 
     result = setup_analytics_data.load_tracking_data("10000 steps")
 
-    assert result[0][0] == "2025-09-26"
-    assert len(result) == 7
+    assert result[0][0] == "2025-09-27"
+    assert len(result) == 8
 
 def test_delete_analytics(setup_analytics_data):
     result1 = ("10000 steps", "2025-09-23")
@@ -127,7 +132,13 @@ def test_delete_analytics(setup_analytics_data):
 
     assert data_set2 == "Habit was not found"
 
-    result3 = ("10000 steps", "2025-09-27")
+    result3 = ("10000 steps", "2025-09-29")
     data_set3 = setup_analytics_data.delete_tracking_data(result3)
 
     assert data_set3 == "No data found"
+
+def test_load_all_habits(setup_analytics_data):
+    habit_list = setup_analytics_data.load_all_habits()
+    print(habit_list)
+    for habit in habit_list:
+        print(f'The Habit is {habit}')

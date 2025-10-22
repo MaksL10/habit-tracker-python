@@ -128,11 +128,11 @@ def test_invalid_habit_fixture(invalid_habit):
 # Tests with fixtures - testing functionality of database functions
 def test_save(db_setup, valid_habit):
     storage = SQLiteStorage(db_setup)
-    result = storage.save_habit(valid_habit)
-    assert result == "Successfully saved"
+    success = storage.save_habit(valid_habit)
+    assert success == True
     
     result2 = storage.save_habit(valid_habit)
-    assert result2 == "Habit already exists"
+    assert result2 == False
 
 def test_load(db_setup, valid_habit):
     storage = SQLiteStorage(db_setup)
@@ -145,9 +145,9 @@ def test_load(db_setup, valid_habit):
 def test_delete(db_setup, valid_habit):
     storage = SQLiteStorage(db_setup)
     storage.save_habit(valid_habit)
-    del_result = storage.delete_habit("testing")
-    assert del_result == "There is no such habit"
-    del_result2 = storage.delete_habit("running")
-    assert del_result2 == "Habit succesfully deleted"
+    success, message = storage.delete_habit("testing")
+    assert message == "There is no such habit"
+    success, message = storage.delete_habit("running")
+    assert message == "Habit succesfully deleted"
 
 # endregion
