@@ -1,4 +1,4 @@
-# import region
+# region imports
 
 import sqlite3
 import questionary
@@ -8,9 +8,21 @@ from storage import SQLiteStorage
 from habits import Habit
 from analytics import longest_streak, current_streak, completion_rate
 
-# end import region
+# endregion imports
 
 def setup_database():
+    """
+    Set up database connection and initialize schema.
+
+    Creates connection to habits.db and creates 2 tables if they don't exist:
+    - habits: Stores habit ID, name, periodicity, and description  
+    - tracking: Stores tracking ID, habit ID, and completion dates
+
+    Enables foreign key constraints for data integrity.
+
+    Returns:
+        sqlite3.Connection: Active database connection to habits.db.
+    """
     conn = sqlite3.connect('habits.db')
     cursor = conn.cursor()
 
@@ -36,6 +48,23 @@ def setup_database():
     return conn
 
 def main():
+    """
+    Main application entry point and event loop.
+    
+    Initializes database connection and enters interactive CLI loop.
+    Handles user navigation between smart start menu and main menu,
+    processing user choices until exit is selected.
+    
+    Flow:
+        1. Set up database connection and tables
+        2. Enter main interaction loop  
+        3. Handle smart start menu → main menu navigation
+        4. Process user actions (create, delete, track, analytics)
+        5. Clean exit on user request
+        
+    Returns:
+        None: Application terminates when user exits
+    """
     conn = setup_database()
     storage = SQLiteStorage(conn)
 
@@ -97,6 +126,17 @@ def main():
 
 
 def smart_start(storage):
+    """
+    Display smart start menu for quick habit selection or navigation.
+    
+    Gets list of available habits, adds Main Menu and exit options. Prompts user to make a choice.
+    
+    Args:
+        storage (SQLiteStorage): Database storage object
+        
+    Returns:
+        str: User's selected choice (habit name, "Main Menu", or "Exit")
+    """
     habits = storage.load_all_habits()
     choices = habits + ["Main Menu", "Exit"]
 
@@ -104,15 +144,37 @@ def smart_start(storage):
 
 
 def create_completion(storage, habit):
+    """
+    Handle new completion through CLI interface.
+    
+    Gets today's date and saves it together with habit name to database.
+    
+    Args:
+        storage (SQLiteStorage): Database storage object
+        habit (str): Name of a habit for completion
+        
+    Returns:
+        tuple: (success: bool, message: str)
+    """
     today = datetime.now().date()
     data = (habit, today)
     
-    result = storage.save_tracking_data(data)
-    success, message = result
+    success, message = storage.save_tracking_data(data)
     return (success, message)
 
 
 def main_menu(storage):
+    """
+    Display main menu with available actions.
+    
+    Prompts user to select next action in the app.
+
+    Args:
+        storage (SQLiteStorage): Database storage object (unused but maintained for API consistency)
+    
+    Returns:
+        str: User's selected choice or "Exit" if cancelled
+    """
     choices = [
         "Show analytics",
         "Create New Habit",
@@ -129,6 +191,22 @@ def main_menu(storage):
 
 
 def show_analytics(storage):
+    """
+    Display analytics for selected habit.
+    
+    Shows longest streak, current streak, and completion rate for chosen habit.
+    Calls all three analytics functions and displays results.
+    
+    Note:
+        Known UX limitation: Habits without tracking data will show 
+        duplicate "No tracking data found" messages from longest_streak() 
+        and current_streak(), while completion_rate() shows 0%.
+        
+    Returns:
+        tuple of False:
+            - (habit_name, longest_streak_result, current_streak_result, completion_rate_result) if analytics generated
+            - False if user cancels selection or goes back to main menu
+    """
     habits = storage.load_all_habits()
     choices = habits + ["Go back to main Menu"]
     habit = questionary.select("Choose a habit for analytics: ", choices=choices).ask()
@@ -145,6 +223,19 @@ def show_analytics(storage):
     return analytics_data
 
 def create_habit(storage):
+    """
+    Handle new habit creation through CLI interface.
+    
+    Prompts user for habit details, validates input, and saves to database.
+    Includes error recovery workflow for invalid inputs.
+    
+    Args:
+        storage (SQLiteStorage): Database storage object
+        
+    Returns:
+        tuple: (success: bool, message: str)
+    """
+
     name = questionary.text("Enter habit name:").ask()
 
     ## ====== DOUBLE VALIDATION SECTION ======##
@@ -174,6 +265,19 @@ def create_habit(storage):
     
 
 def delete_habit(storage):
+    """
+    Handle deletion of existing habit through CLI interface.
+    
+    Prompts user to choose habit from list, validates selection, and performs the deletion from database.
+    Includes error recovery workflow for invalid inputs.
+    
+    Args:
+        storage (SQLiteStorage): Database storage object
+        
+    Returns:
+        tuple: (success: bool, message: str)
+    """
+
     choices = storage.load_all_habits()
     if not choices:
         return (False, "No habits to delete")
@@ -188,6 +292,17 @@ def delete_habit(storage):
 
 
 def quit_app(conn):
+    """
+    Quit the application gracefully.
+    
+    Displays goodbye message and closes database connection.
+
+    Args:
+        conn (sqlite3.connection): connection to SQLite3 Database.
+    
+    Returns:
+        None: Function performs cleanup and exits
+    """
     print("See you next time!")
     print("The app has been closed")
     conn.close()
