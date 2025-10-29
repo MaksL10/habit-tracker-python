@@ -301,6 +301,29 @@ class SQLiteStorage:
         else:
             return "No data found"
         
+    def load_all_habits_by_periodicity(self, periodicity):
+        """
+        Load all habits with the same periodicity from database.
+
+        Retrieves complete list of habit names for a given periodicity
+        for user selection in CLI menus.
+
+        Args:
+            periodicity (str): Periodicity to search in DB: "daily", "weekly" or "monthly"
+
+        Returns:
+            list: List of all habit names as strings, empty list if no habits exist
+        """
+
+        res = self.cursor.execute("""
+                                    SELECT habit_name FROM habits 
+                                    WHERE habit_periodicity = ?
+                                   """, (periodicity,)
+                               )
+        answer = res.fetchall()
+        
+        return [habit["habit_name"] for habit in answer]
+        
     # endregion Tracking Operations
 
 # enrregion SQLiteStorage class

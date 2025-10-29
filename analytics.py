@@ -253,4 +253,52 @@ def completion_rate(storage, habit):
 
 # endregion completion rate
 
+# region longest streak by periodicity
+
+def extract_streak_number(result):
+    # "The longest streak for Habit X is 15 days"
+    words = result.split()
+    # Find "is" and take next word
+    for i, word in enumerate(words):
+        if word == "is":
+            return int(words[i+1])
+
+def longest_streaks_by_periodicity(storage):
+    """
+    Find longest streaks grouped by periodicity.
+    
+    Returns longest streak for each periodicity type separately,
+    allowing meaningful comparisons within same frequency.
+    
+    Returns:
+        dict: {
+            "daily": ("habit_name", streak_count),
+            "weekly": ("habit_name", streak_count), 
+            "monthly": ("habit_name", streak_count)
+        }
+    """
+    results = []
+    
+    for periodicity in ["daily", "weekly", "monthly"]:
+        habits = storage.load_all_habits_by_periodicity(periodicity)
+        
+        if not habits:
+            results.append(f'No {periodicity} habits found')
+        else: 
+            best_habit = None
+            best_streak = 0
+            
+            for habit in habits:
+                streak_result = longest_streak(storage, habit)
+                # Extract streak number from "The longest streak for Habit X is Y days"
+                streak_count = extract_streak_number(streak_result)
+                
+                if streak_count > best_streak:
+                    best_streak = streak_count
+                    best_habit = habit
+            
+            results.append(f'Best {periodicity.capitalize()} Habit: {best_habit} with {best_streak} streak')
+    
+    return "\n".join(results)
+# endregion longest streak by periodicity
 # endregion

@@ -38,37 +38,100 @@ def test_multiple_habits(db_setup, valid_habit, daily_habit, weekly_habit):
 def test_today():
     assert datetime.now().date() == date(2025,9,29)
 
+# region tracking_data
 @pytest.fixture
 def tracking_test_data():
     return {
-        "10000 steps": [
-            date(2025,9,27),
-            date(2025,9,26),
-            date(2025,9,25),
+        #=== 5 REQUIERED HABITS (as named in conception.pdf)===#
+        "Brush teeth": [
+            date(2025,9,27), 
+            date(2025,9,26), 
+            date(2025,9,25), 
+            date(2025,9,24),
+            date(2025,9,23), 
+            date(2025,9,21), 
+            date(2025,9,20), 
+            date(2025,9,19), 
+            date(2025,9,18), 
+            date(2025,9,17), 
+            date(2025,9,16), 
+            date(2025,9,15),
+            date(2025,9,14), 
+            date(2025,9,13), 
+            date(2025,9,11), 
+            date(2025,9,10),
+            date(2025,9,9), 
+            date(2025,9,8), 
+            date(2025,9,7), 
+            date(2025,9,6),
+            date(2025,9,5), 
+            date(2025,9,4), 
+            date(2025,9,2), 
+            date(2025,9,1)
+        ],
+
+        "Walk 10.000 steps": [
+            date(2025,9,27), 
+            date(2025,9,26), 
+            date(2025,9,25), 
             date(2025,9,23),
-            date(2025,9,22),
-            date(2025,9,21),
-            date(2025,9,19),
-            date(2025,9,15)
+            date(2025,9,22), 
+            date(2025,9,21), 
+            date(2025,9,19), 
+            date(2025,9,17),
+            date(2025,9,16), 
+            date(2025,9,15), 
+            date(2025,9,13), 
+            date(2025,9,12),
+            date(2025,9,10), 
+            date(2025,9,8), 
+            date(2025,9,6), 
+            date(2025,9,4),
+            date(2025,9,2), 
+            date(2025,9,1)
+
         ],
             
-        "go to Cinema": [
+        "Go to cinema": [
             date(2025,9,25),
             date(2025,9,16),
             date(2025,9,2)
         ],
 
+        "Clean room": [
+            date(2025,9,24), 
+            date(2025,9,15), 
+            date(2025,9,1)
+        ],
+
+        "Exercise": [
+            date(2025,9,26),
+            date(2025,9,19),
+            date(2025,9,12),
+            date(2025,9,5)
+        ],
+
+        #===TEST-SPECIFIC HABIGS (for existing tests)===#
+        "10000 steps": [
+            date(2025,9,27), date(2025,9,26), date(2025,9,25),
+            date(2025,9,23), date(2025,9,22), date(2025,9,21),
+            date(2025,9,19), date(2025,9,15)
+        ],
         "meditation": [
             date(2025,9,26)
         ],
-
         "gym": [
-            date(2025,9,26),
-            date(2025,9,20),
-            date(2025,9,18),
-            date(2025,9,10)
-        ]
+            date(2025,9,26), date(2025,9,20), date(2025,9,18), date(2025,9,10)
+        ],
+
+        "go to Cinema": [
+            date(2025,9,25),
+            date(2025,9,16),
+            date(2025,9,2)
+        ],
+        # "reading" gets no tracking data = empty, handled by setup
     }
+# endregion tracking_data
 
 @pytest.fixture
 def setup_analytics_data(db_setup, daily_habit, weekly_habit, single_entry_habit, no_tracking_data_habit, no_consecutive_dates_habit,
@@ -125,12 +188,12 @@ def test_delete_analytics(setup_analytics_data):
     result1 = ("10000 steps", "2025-09-23")
     data_set1 = setup_analytics_data.delete_tracking_data(result1)
 
-    assert data_set1 == "Data succesfully deleted"
+    assert data_set1 == "Data successfully deleted"
 
     result2 = ("sleeping", "2025-09-20")
     data_set2 = setup_analytics_data.delete_tracking_data(result2)
 
-    assert data_set2 == "Habit was not found"
+    assert data_set2 == "Habit name was not found"
 
     result3 = ("10000 steps", "2025-09-29")
     data_set3 = setup_analytics_data.delete_tracking_data(result3)
