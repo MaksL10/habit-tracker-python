@@ -15,7 +15,7 @@ from test_analytics_setup import (
     no_tracking_data_habit
 )
 
-from analytics import longest_streak, current_streak, completion_rate
+from analytics import longest_streak, current_streak, completion_rate, longest_streak_by_periodicity
 
 # endregion
 
@@ -104,3 +104,7 @@ def test_completion_date_weekly(setup_analytics_data):
 
 
 # endregion test completion rate
+
+def test_longest_streak_by_periodicity(setup_analytics_data):
+    result = longest_streak_by_periodicity(setup_analytics_data)
+    assert result == 'Best Daily Habit: 10000 steps with 3 streak\nBest Weekly Habit: go to Cinema with 2 streak\nNo monthly habits found'

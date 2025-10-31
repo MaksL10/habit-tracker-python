@@ -263,7 +263,7 @@ def extract_streak_number(result):
         if word == "is":
             return int(words[i+1])
 
-def longest_streaks_by_periodicity(storage):
+def longest_streak_by_periodicity(storage):
     """
     Find longest streaks grouped by periodicity.
     
@@ -292,6 +292,8 @@ def longest_streaks_by_periodicity(storage):
                 streak_result = longest_streak(storage, habit)
                 # Extract streak number from "The longest streak for Habit X is Y days"
                 streak_count = extract_streak_number(streak_result)
+                if not streak_count:
+                    break
                 
                 if streak_count > best_streak:
                     best_streak = streak_count

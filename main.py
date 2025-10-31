@@ -6,7 +6,7 @@ from datetime import datetime
 
 from storage import SQLiteStorage
 from habits import Habit
-from analytics import longest_streak, current_streak, completion_rate
+from analytics import longest_streak, current_streak, completion_rate, longest_streak_by_periodicity
 
 # endregion imports
 
@@ -84,15 +84,18 @@ def main():
                         return
                     success, message = create_completion(storage, choice)
                     print(message)
+                elif menu_choice == "Show Habits by periodicity":
+                    periodicity, result = get_habits_by_periodicity(storage)
+                    if len(result) > 0:
+                        print(f'Habits with {periodicity} periodicity:')
+                        for habit in result:
+                            print(habit)
+                    else:
+                        print(f'No {periodicity} habit found')
                 elif menu_choice == "Show analytics":
                     analytics = show_analytics(storage)
                     if analytics:
-                        habit, longest, current, completion = analytics
-                        print(f'Analytics for {habit}:')
-                        print(longest)
-                        print(current)
-                        print(completion)
-                        print()
+                        print(analytics)
                     else:
                         continue
                 elif menu_choice == "Create New Habit":
@@ -178,6 +181,7 @@ def main_menu(storage):
     choices = [
         "Show analytics",
         "Create New Habit",
+        "Show Habits by periodicity",
         "Delete Habit",
         "Track Completion",
         "Exit"
@@ -192,10 +196,13 @@ def main_menu(storage):
 
 def show_analytics(storage):
     """
-    Display analytics for selected habit.
+    Display analytics for selected habit or cross-habit streak comparison.
     
-    Shows longest streak, current streak, and completion rate for chosen habit.
-    Calls all three analytics functions and displays results.
+    Prompts user to choose between individual habit analytics or 
+    longest streak comparison across all periodicities.
+    Individual habit analytics shows longest streak, current streak, 
+    and completion rate. Cross-habit comparison shows best performing 
+    habit within each periodicity group.
     
     Note:
         Known UX limitation: Habits without tracking data will show 
@@ -203,24 +210,28 @@ def show_analytics(storage):
         and current_streak(), while completion_rate() shows 0%.
         
     Returns:
-        tuple of False:
-            - (habit_name, longest_streak_result, current_streak_result, completion_rate_result) if analytics generated
+        str or False:
+            - str: Formatted analytics message for display
             - False if user cancels selection or goes back to main menu
     """
     habits = storage.load_all_habits()
-    choices = habits + ["Go back to main Menu"]
-    habit = questionary.select("Choose a habit for analytics: ", choices=choices).ask()
+    choices = habits + ["Longest Streak by periodicity","Go back to main Menu"]
+    choice = questionary.select("Choose a habit for analytics: ", choices=choices).ask()
 
-    if habit == "Go back to main Menu":
+    if choice == "Go back to main Menu":
         return False
     
-    longest = longest_streak(storage, habit)
-    current = current_streak(storage, habit)
-    completion = completion_rate(storage, habit)
+    elif choice == "Longest Streak by periodicity":
+        message = longest_streak_by_periodicity(storage)
 
-    analytics_data = (habit, longest, current, completion)
+    else:
+        longest = longest_streak(storage, choice)
+        current = current_streak(storage, choice)
+        completion = completion_rate(storage, choice)
+
+        message = f'Analytics for {choice}:\n{longest}\n{current}\n{completion}'
     
-    return analytics_data
+    return message
 
 def create_habit(storage):
     """
@@ -263,6 +274,24 @@ def create_habit(storage):
     except ValueError as e:
         return (False, f"Error: {e}")
     
+def get_habits_by_periodicity(storage):
+    """
+    Retrieve list of all habits for a given periodicity.
+    
+    Prompts user for periodicity and retrieves all habits 
+    from the database with the specified periodicity.
+    
+    Args:
+        storage (SQLiteStorage): Database storage object
+        
+    Returns:
+        tuple: (periodicity: str, result: list)
+            - periodicity: Selected periodicity type
+            - result: List of habit names matching the periodicity
+    """
+    periodicity = questionary.select("Select periodicity: ", choices=["daily", "weekly", "monthly"]).ask()
+    result = storage.load_all_habits_by_periodicity(periodicity)
+    return (periodicity, result)
 
 def delete_habit(storage):
     """
