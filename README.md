@@ -117,7 +117,9 @@ Expected Test Results
 All tests should pass with output similar to:
 
 test_analytics_functions.py::test_longest_streak PASSED
+
 test_analytics_functions.py::test_current_streak PASSED
+
 test_analytics_setup.py::test_setup_data PASSED
 
 =================== 39 passed in 2.45s ===================
