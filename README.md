@@ -119,11 +119,13 @@ All tests should pass with output similar to:
 test_analytics_functions.py::test_longest_streak PASSED
 test_analytics_functions.py::test_current_streak PASSED
 test_analytics_setup.py::test_setup_data PASSED
+
 =================== 39 passed in 2.45s ===================
 
 ## Project Structure
 
 habit-tracker-python/
+│
 ├── main.py # Main application entry point
 ├── storage.py # Database operations and CRUD functionality
 ├── habits.py # Habit class with validation
@@ -132,10 +134,12 @@ habit-tracker-python/
 ├── requirements.txt # Project dependencies
 ├── README.md # Project documentation
 ├── integration_tests.md # Manual integration test documentation
+│
 ├── test_analytics_functions.py # Unit tests for analytics
 ├── test_analytics_setup.py # Test fixtures and setup
 ├── test_database.py # Database testing
 ├── test_main.py # CLI functionality tests
+│
 ├── habit-tracker-env/ # Virtual environment
 ├── pycache/ # Python cache files
 └── .pytest_cache/ # Pytest cache files
