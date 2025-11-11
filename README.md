@@ -125,7 +125,7 @@ test_analytics_setup.py::test_setup_data PASSED
 =================== 39 passed in 2.45s ===================
 
 ## Project Structure
-
+```Text
 habit-tracker-python/
 │
 ├── main.py # Main application entry point
@@ -145,7 +145,7 @@ habit-tracker-python/
 ├── habit-tracker-env/ # Virtual environment
 ├── pycache/ # Python cache files
 └── .pytest_cache/ # Pytest cache files
-
+```
 
 ### Key Components
 
