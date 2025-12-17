@@ -1,5 +1,7 @@
 # region imports
 
+import sys
+import time
 import sqlite3
 import questionary
 from datetime import datetime
@@ -7,6 +9,7 @@ from datetime import datetime
 from storage import SQLiteStorage
 from habits import Habit
 from analytics import longest_streak, current_streak, completion_rate, longest_streak_by_periodicity
+from demo_data import setup_demo_data
 
 # endregion imports
 
@@ -67,6 +70,24 @@ def main():
     """
     conn = setup_database()
     storage = SQLiteStorage(conn)
+
+    # Auto-load demo data if database is empty
+    if not storage.load_all_habits():
+        print("First run detected: Setting up demo data...")
+              
+        try:
+            setup_demo_data(storage)
+            print("Demo data successfully initialized!")
+            # Short pause so user can read the success message before the menu appears
+            time.sleep(1.5)
+
+        except Exception as e:
+            # Print to sys.stderr to make the error stand out
+            print(f'\n WARNING: Could not load demo data!', file=sys.stderr)
+            print(f'Error details: {e}', file=sys.stderr)
+            print('The app will start with an empty database. Create habits manually.\n', file=sys.stderr)
+            # Longer pause so the user has time to read the error messages
+            time.sleep(4)
 
     while True:
         choice = smart_start(storage)

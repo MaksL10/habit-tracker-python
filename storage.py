@@ -56,6 +56,9 @@ class SQLiteStorage:
             return True
         except sqlite3.IntegrityError:
             return False
+        except Exception as e: # <--- NEUER BLOCK: Fängt ALLE ANDEREN Fehler
+            self.connection.rollback() # <--- WICHTIG: Stellt sicher, dass keine halben Daten drin bleiben
+            raise e # <--- WIRF DEN FEHLER NEU, UM TRACEBACK ZU ERHALTEN!
 
     
     def load_habit(self, habit):
